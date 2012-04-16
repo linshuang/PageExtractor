@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
 public class Rule {
 	static final List<String> unExpr = Arrays.asList(new String[] { "type",
 			"uri" });
-	
-	String _siteType;
+
+	public String _siteType;
 	String _uriRegex;
-	ArrayList<Expression> _exprs = new ArrayList<Expression>();
+	protected ArrayList<Expression> _exprs = new ArrayList<Expression>();
 
 	public boolean isRuleFit(String uri) {
 		return Pattern.matches(_uriRegex, uri);
@@ -28,8 +28,16 @@ public class Rule {
 		_exprs.add(new Expression(name, expr));
 	}
 
-	public ArrayList<Expression> getExprs() {
-		return _exprs;
+	public String getExprValue(int i) {
+		return _exprs.get(i).expression;
+	}
+
+	public String getExprName(int i) {
+		return _exprs.get(i).name;
+	}
+
+	public int getExprsSize() {
+		return _exprs.size();
 	}
 
 	public void addUnExpr(String... str) {

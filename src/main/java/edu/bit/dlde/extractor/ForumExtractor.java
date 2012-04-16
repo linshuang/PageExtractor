@@ -1,15 +1,16 @@
 package edu.bit.dlde.extractor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 
 import edu.bit.dlde.extractor.skeleton.PreciseExtractor;
+import edu.bit.dlde.extractor.xpathcfg.Rule;
 
 /**
  * Subclass of {@link PreciseExtractor}. And this class is dedicated to forum.
@@ -24,77 +25,57 @@ import edu.bit.dlde.extractor.skeleton.PreciseExtractor;
  */
 public class ForumExtractor extends PreciseExtractor {
 	static Logger logger = Logger.getLogger(ForumExtractor.class);
-	long _id;
-	HtmlCleaner cleaner = new HtmlCleaner();
 
-	public void resetId() {
-		_id = 0;
-	}
+	public HashMap<String, String> extract() {
+		if (_reader == null)
+			return null;
 
-	/**
-	 * Extract the page whose type is forum.
-	 * 
-	 * @param file
-	 *            content of the file to be extracted
-	 * @throws XPatherException
-	 *             if any errors occurs
-	 * @throws IOException
-	 *             if any errors occurs
-	 * @see PreciseExtractor.crawl.extractor.classic.xpath.IPageExtractor#extract(java.lang.String,
-	 *      java.lang.String)
-	 */
-	public HashMap<String, String> extract(String file) {
+		long id = 0;
 		HashMap<String, String> c2v = new HashMap<String, String>();
-
-		TagNode tagNode;
-		tagNode = cleaner.clean(file);
-
-		Object[] nodes;
-		String xPathExpression;
-		xPathExpression = _rules.get(0).getExpression();
-		Object[] frames = null;
-		TagNode frameNode;
 		try {
-			frames = tagNode.evaluateXPath(xPathExpression);
-		} catch (XPatherException e1) {
-			System.out.println(xPathExpression);
-			e1.printStackTrace();
-		}
-		// System.out.println(frames[0].toString());
-		for (Object frame : frames) {
-			// System.out.println("12819281937");
-			frameNode = (TagNode) frame;
-			for (int i = 1; i < _rules.size(); i++) {
-				xPathExpression = _rules.get(i).getExpression();
-				try {
-					nodes = frameNode.evaluateXPath(xPathExpression);
+			TagNode root = cleaner.clean(_reader);
+			CleanerProperties props = cleaner.getProperties();
+			props.setNamespacesAware(false);
+			// get suitable rule;
+			Rule rule = findFitRule();
+			if (rule == null)
+				return null;
+
+			// get frame nodes
+			String frameExpr = _rules.get(0).getExprValue(0);
+			Object[] frames = root.evaluateXPath(frameExpr);
+
+			// iterate into each frame node
+			for (Object frame : frames) {
+				// System.out.println("12819281937");
+				TagNode fNode = (TagNode) frame;
+				for (int i = 1; i < rule.getExprsSize(); i++) {
+					String name = rule.getExprName(i);
+					String value = rule.getExprValue(i);
+					Object[] nodes = fNode.evaluateXPath(value);
 
 					for (Object node : nodes) {
 						TagNode n = (TagNode) node;
 						String content = n.getText().toString();
-						c2v.put(_rules.get(i).getName() + _id, content
-								.replaceAll("&nbsp;", " ").replace("\n", ""));
-						logger.info("Extract result: "
-								+ _rules.get(i).getName()
-								+ ":"
-								+ content.replaceAll("&nbsp;", " ").replace(
-										"\n", ""));
+						c2v.put(id + "-" + name, content);
+						logger.info("Extract result: " + name + ":" + content);
 					}
-				} catch (NullPointerException e) {
-					System.out.println("ERROR: XPathExpression is "
-							+ xPathExpression);
-				} catch (XPatherException e) {
-					System.out.println("XPather ERROR: XPathExpression is "
-							+ xPathExpression);
-					e.printStackTrace();
 				}
+				id++;
 			}
-			_id++;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (XPatherException e) {
+			e.printStackTrace();
 		}
 		return c2v;
 	}
 
-	public HashMap<String, String> extract() {
-		return null;
+	@Override
+	public void addRules(ArrayList<Rule> rules) {
+		for (Rule r : rules) {
+			if (r._siteType.equals("forum"))
+				_rules.add(r);
+		}
 	}
 }

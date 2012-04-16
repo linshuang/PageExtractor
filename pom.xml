@@ -79,4 +79,10 @@
 			<version>2.2</version>
 		</dependency>
 	</dependencies>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://dlde.at.bitunion.org:11005/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
