@@ -9,8 +9,8 @@
 	</rule>
 	<rule>
 		<type>news</type>
-		<uri>sports.sina</uri>
-		<title>.//tr[1]/td[1]/div[1]/a/font</title>
-		<content>.//tr/td/div/div/div/table/tbody/tr/td</content>
-	</rule>
+		<uri>sina</uri>
+		<title>h1#artibodyTitle</title>
+		<content>.//*[@id='artibody']/p</content>
+	</rule> 
 </rules>

@@ -26,7 +26,7 @@ import edu.bit.dlde.extractor.xpathcfg.Rule;
  */
 public abstract class PreciseExtractor extends PageExtractor {
 	protected HtmlCleaner cleaner = new HtmlCleaner();
-	protected List<Rule> _rules;
+	protected List<Rule> _rules = new ArrayList<Rule>();
 
 	public abstract void addRules(ArrayList<Rule> rules);
 
@@ -38,7 +38,7 @@ public abstract class PreciseExtractor extends PageExtractor {
 		}
 		return null;
 	}
-	
+
 	public Rule findFitRule(String uri) {
 		for (int i = 0; i < _rules.size(); i++) {
 			Rule rule = _rules.get(i);
