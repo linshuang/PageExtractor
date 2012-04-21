@@ -2,7 +2,7 @@ package edu.bit.dlde.extractor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 import org.htmlcleaner.CleanerProperties;
@@ -26,12 +26,12 @@ import edu.bit.dlde.extractor.xpathcfg.Rule;
 public class ForumExtractor extends PreciseExtractor {
 	static Logger logger = Logger.getLogger(ForumExtractor.class);
 
-	public HashMap<String, String> extract() {
+	public LinkedHashMap<String, String> extract() {
 		if (_reader == null)
 			return null;
 
 		long id = 0;
-		HashMap<String, String> c2v = new HashMap<String, String>();
+		LinkedHashMap<String, String> c2v = new LinkedHashMap<String, String>();
 		try {
 			TagNode root = cleaner.clean(_reader);
 			CleanerProperties props = cleaner.getProperties();

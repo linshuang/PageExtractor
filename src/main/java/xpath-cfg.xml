@@ -10,7 +10,7 @@
 	<rule>
 		<type>news</type>
 		<uri>sina</uri>
-		<title>h1#artibodyTitle</title>
+		<title>.//*[@id='artibodyTitle']</title>
 		<content>.//*[@id='artibody']/p</content>
 	</rule> 
 </rules>

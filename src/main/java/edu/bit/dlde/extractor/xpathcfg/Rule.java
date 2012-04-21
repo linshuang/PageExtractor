@@ -15,9 +15,18 @@ import java.util.regex.Pattern;
 public class Rule {
 	static final List<String> unExpr = Arrays.asList(new String[] { "type",
 			"uri" });
-
 	public String _siteType;
-	String _uriRegex;
+	public String _uriRegex;
+	public boolean _enabled;
+
+	public boolean isEnabled() {
+		return _enabled;
+	}
+
+	public void setEnabled(boolean _enabled) {
+		this._enabled = _enabled;
+	}
+
 	protected ArrayList<Expression> _exprs = new ArrayList<Expression>();
 
 	public boolean isRuleFit(String uri) {

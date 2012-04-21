@@ -10,58 +10,67 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import edu.bit.dlde.extractor.skeleton.ImpreciseExtractor;
 
 /**
  * Efficient Web Page Main Text Extraction towards Online News Analysis
  * 算法：每行内容/最大的行内容
  */
-public class ContentLengthExtractor {
+public class ContentLengthExtractor extends ImpreciseExtractor {
 	static Logger _logger = Logger.getLogger(ContentLengthExtractor.class);
 
-	private List<String> _resource;
+	private List<String> _src;
 	private double[] _n;
-	private double _max = 0.0;
-	private double _min = 0.0;
-	private double _average = 0.0;
-	private double _long = 0.0;
-	private double _short = 0.0;
-	private double _omega1 = 2.0;
-	private double _omega2 = 2.0;
-	private boolean _isDebug = true;
+	private double _max = 0.0, _min = 0.0, _average = 0.0, _long = 0.0,
+			_short = 0.0, _omega1 = 2.0, _omega2 = 2.0;
 
-	private Reader reader = null;
 	private String title = "";
 	private String content = "";
 	public String total = "";
-	private BufferedWriter bw = null;
 
-	public boolean isDebug() {
-		return _isDebug;
-	}
-
-	/**
-	 * 设置输入
+	/*
+	 * the reader should defaultly read in html doc line by line.
+	 * 
+	 * @see
+	 * edu.bit.dlde.extractor.skeleton.PageExtractor#setResource(java.io.Reader,
+	 * java.lang.String)
 	 */
-	public void setReader(Reader reader) {
-		this.reader = reader;
-	}
-
-	public ContentLengthExtractor setDebug(boolean isDebug) {
-		this._isDebug = isDebug;
-		return this;
-	}
-
-	public List<String> getResource() {
-		return _resource;
-	}
-
-	public ContentLengthExtractor setResource(List<String> _resource) {
-		this._resource = _resource;
+	public ContentLengthExtractor setResource(Reader reader, String uri) {
+		this._reader = reader;
+		this._uri = uri;
+		initSrc();
 		resetAll();
-		init();
+		first();
+		normalize();
+		smooth();
+		setBoundary();
 		return this;
+	}
+
+//	boolean isEn = true;
+	private void initSrc() {
+		if (_reader == null)
+			return;
+		_src = new ArrayList();
+
+		BufferedReader br = new BufferedReader(_reader);
+		while (true) {
+			try {
+				String line = br.readLine();
+				if (line == null)
+					break;
+//				if(line.contains("的"))
+//					isEn = false;
+				
+				_src.add(line);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void resetAll() {
@@ -74,66 +83,28 @@ public class ContentLengthExtractor {
 		_omega2 = 2.0;
 	}
 
-	public double getOmega1() {
-		return _omega1;
-	}
-
-	public ContentLengthExtractor setOmega1(double _omega1) {
-		this._omega1 = _omega1;
-		return this;
-	}
-
-	public double getOmega2() {
-		return _omega2;
-	}
-
-	public ContentLengthExtractor setOmega2(double _omega2) {
-		this._omega2 = _omega2;
-		return this;
-	}
-
-	public ContentLengthExtractor(List<String> resource, boolean isDebug) {
-		this._resource = resource;
-		this._isDebug = isDebug;
-		init();
-	}
-
-	public ContentLengthExtractor(boolean isDebug) {
-		this._isDebug = isDebug;
-	}
-
-	public void init() {
-		first();
-		normalize();
-		smooth();
-		setBoundary();
+	public ContentLengthExtractor() {
 	}
 
 	private void first() {
-		_n = new double[_resource.size()];
+		_n = new double[_src.size()];
 		for (int i = 0; i < _n.length; i++) {
-			double tmp = _n[i] = getWordCount(_resource.get(i));
-
-			if (_isDebug)
-				_logger.debug("After the first initial, n[" + i + "] is "
-						+ _n[i] + " now.");
+			double tmp = _n[i] = _src.get(i).split(" ").length;
+//			double tmp = _n[i] = _src.get(i).length();
+			// _logger.debug("After the first initial, n[" + i + "] is "
+			// + _n[i] + " now.");
 			if (tmp > _max) {
 				_max = tmp;
 			}
 		}
 	}
 
-	private int getWordCount(String str) {
-		return str.split(" ").length;
-	}
-
 	private void normalize() {
 		for (int i = 0; i < _n.length; i++) {
 			_n[i] /= _max;
 
-			if (_isDebug)
-				_logger.debug("After the normalize, n[" + i + "] is " + _n[i]
-						+ " now.");
+			// _logger.debug("After the normalize, n[" + i + "] is " + _n[i]
+			// + " now.");
 		}
 	}
 
@@ -142,9 +113,9 @@ public class ContentLengthExtractor {
 				/ (_omega1 + 1);
 		double sum = tmp;
 		int i;
-		if (_isDebug)
-			_logger.debug("After the smooth, n[" + 0 + "] is " + _n[0]
-					+ " now.");
+
+		// _logger.debug("After the smooth, n[" + 0 + "] is " + _n[0]
+		// + " now.");
 
 		for (i = 1; i < _n.length - 1; i++) {
 			tmp = _n[i] = (_n[i - 1] + _omega1 * _n[i] + _n[i + 1])
@@ -156,15 +127,14 @@ public class ContentLengthExtractor {
 				_min = tmp;
 			}
 			sum += tmp;
-			if (_isDebug)
-				_logger.debug("After the smooth, n[" + i + "] is " + _n[i]
-						+ " now.");
+			// _logger.debug("After the smooth, n[" + i + "] is " + _n[i]
+			// + " now.");
 		}
 
 		tmp = _n[i] = (_n[i - 1] + _omega1 * _n[i]) / (1 + _omega1);
-		if (_isDebug)
-			_logger.debug("After the smooth, n[" + i + "] is " + _n[i]
-					+ " now.");
+
+		// _logger.debug("After the smooth, n[" + i + "] is " + _n[i]
+		// + " now.");
 		if (tmp > _max) {
 			_max = tmp;
 		}
@@ -178,11 +148,11 @@ public class ContentLengthExtractor {
 
 	private void setBoundary() {
 		_long = (_omega2 * _max + _average) / (_omega2 + 1);
-		if (_isDebug)
-			_logger.debug("The long boundary is " + _long + ".");
+
+		// _logger.debug("The long boundary is " + _long + ".");
 		_short = (_omega2 * _min + _average) / (_omega2 + 1);
-		if (_isDebug)
-			_logger.debug("The short boundary is " + _short + ".");
+
+		// _logger.debug("The short boundary is " + _short + ".");
 	}
 
 	/**
@@ -190,28 +160,33 @@ public class ContentLengthExtractor {
 	 * 
 	 * @return List 网页正文集合
 	 */
-	public void extract() {
+	public Map<String, String> extract() {
 		int i, j;
+		double tmpWrds = 0, maxWrds = 0;
 		boolean existLong = false;
 
 		for (i = 0, j = 0; i < _n.length; i++) {
 			// max以上
 			if (_n[i] >= _long) {
+				tmpWrds += _n[i];
 				existLong = true;
 			} else {
 				// max和min之间
 				if (_n[i] >= _short) {
-					// do nothing
+					tmpWrds += _n[i];
 				} else {
 					// min之下的
-					if (existLong) {
+					if (existLong && tmpWrds > maxWrds) {
+						maxWrds = tmpWrds;
 						store(j, i);
 						existLong = false;
 					}
 					j = i + 1;
+					tmpWrds = 0;
 				}
 			}
 		}
+		return null;
 	}
 
 	/**
@@ -222,6 +197,7 @@ public class ContentLengthExtractor {
 	 */
 	public void serialize(String str) {
 		File f = new File(str);
+		BufferedWriter bw = null;
 
 		try {
 			if (!f.exists()) {
@@ -237,20 +213,21 @@ public class ContentLengthExtractor {
 
 	}
 
-	private void store(int j, int i) {
+	private void store(int m, int n) {
 		StringBuilder sb = new StringBuilder();
-		for (; j < i; j++) {
-			sb.append(_resource.get(j)).append("\n");
+		for (; m < n; m++) {
+			sb.append(_src.get(m)).append("\n");
 		}
 		total = sb.toString();
 	}
-	
-	public static void main(String[] args) throws FileNotFoundException{
-		ContentLengthExtractor cle= new ContentLengthExtractor(false);
-		BufferedReader br = new BufferedReader(
-				new FileReader(new File("/home/lins/data/yahoo/page/yahoo_1")));
-		cle.setReader(br);
+
+	public static void main(String[] args) throws FileNotFoundException {
+		ContentLengthExtractor cle = new ContentLengthExtractor();
+		BufferedReader br = new BufferedReader(new FileReader(new File(
+				"/home/lins/data/test/test2")));
+		cle.setResource(br, null);
 		cle.extract();
-		cle.serialize("test00");
+		System.out.println(cle.total);
+		// cle.serialize("test00");
 	}
 }

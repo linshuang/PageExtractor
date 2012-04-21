@@ -15,7 +15,21 @@
 	</properties>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>bson</artifactId>
+			<version>2.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.morphia</groupId>
+			<artifactId>morphia</artifactId>
+			<version>0.99</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.directory.studio</groupId>
 			<artifactId>org.apache.commons.io</artifactId>
@@ -52,13 +66,13 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.5.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.5.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -75,7 +89,7 @@
 			<artifactId>jdom</artifactId>
 			<version>1.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>net.sourceforge.htmlcleaner</groupId>
 			<artifactId>htmlcleaner</artifactId>
@@ -88,4 +102,21 @@
 			<url>http://dlde.at.bitunion.org:11005/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>snapshots</id>
+			<name>snapshots</name>
+			<url>http://dlde.at.bitunion.org:11005/nexus/content/repositories/snapshots</url>
+		</repository>
+		<repository>
+			<id>thirdparty</id>
+			<name>thirdparty</name>
+			<url>http://dlde.at.bitunion.org:11005/nexus/content/repositories/thirdparty</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<name>central</name>
+			<url>http://dlde.at.bitunion.org:11005/nexus/content/repositories/central/</url>
+		</repository>
+	</repositories>
 </project>

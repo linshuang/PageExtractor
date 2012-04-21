@@ -2,7 +2,7 @@ package edu.bit.dlde.extractor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 import org.htmlcleaner.CleanerProperties;
@@ -26,11 +26,11 @@ import edu.bit.dlde.extractor.xpathcfg.Rule;
 public class NewsExtractor extends PreciseExtractor {
 	static Logger logger = Logger.getLogger(PreciseExtractor.class);
 
-	public HashMap<String, String> extract() {
+	public LinkedHashMap<String, String> extract() {
 		if (_reader == null)
 			return null;
-		
-		HashMap<String, String> c2v = new HashMap<String, String>();
+
+		LinkedHashMap<String, String> c2v = new LinkedHashMap<String, String>();
 		try {
 			TagNode root = cleaner.clean(_reader);
 			CleanerProperties props = cleaner.getProperties();
@@ -40,7 +40,7 @@ public class NewsExtractor extends PreciseExtractor {
 			if (rule == null)
 				return null;
 
-			for (int i = 1; i < rule.getExprsSize(); i++) {
+			for (int i = 0; i < rule.getExprsSize(); i++) {
 				String name = rule.getExprName(i);
 				String value = rule.getExprValue(i);
 				Object[] nodes = root.evaluateXPath(value);
@@ -51,6 +51,7 @@ public class NewsExtractor extends PreciseExtractor {
 					String content = n.getText().toString();
 					c2v.put(id + "-" + name, content);
 					logger.info("Extract result: " + name + ":" + content);
+					id++;
 				}
 
 			}

@@ -1,14 +1,10 @@
 package edu.bit.dlde.extractor.skeleton;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.xpath.XPathFactory;
-
 import org.htmlcleaner.HtmlCleaner;
 
-import edu.bit.dlde.extractor.xpathcfg.Configuration;
 import edu.bit.dlde.extractor.xpathcfg.Rule;
 
 /**

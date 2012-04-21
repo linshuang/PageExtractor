@@ -16,7 +16,6 @@ import org.jdom.Text;
 
 import edu.bit.dlde.extractor.utils.CustomizedCleaner;
 import edu.bit.dlde.extractor.utils.Utils4GetBlock;
-import edu.bit.dlde.extractor.utils.Utils4MarkNum;
 import edu.bit.dlde.extractor.utils.Utils4RedudantRemove;
 import edu.bit.dlde.extractor.utils.Utils4Shrink;
 
